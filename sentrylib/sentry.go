@@ -45,7 +45,7 @@ func (server *sentry) Serve() error {
 
 	worker := NewSentryWorker(store, duration, mail)
 
-	go RunReaper(worker)
+	go RunReaper(worker, duration)
 
 	for {
 		err = client.Dial()
@@ -74,7 +74,10 @@ func (server *sentry) Serve() error {
 	}
 }
 
-func RunReaper(sentryWorker SentryWorker) {
+func RunReaper(sentryWorker SentryWorker, duration time.Duration) {
+	// Sleep for one duration to avoid flagging any nodes that are currently up but have been down since the last seen hit
+	// TODO look at the latest entry and work out a better duration rather than defaulting to the full duration time
+	time.Sleep(duration)
 	for {
 		nodes, err := sentryWorker.ReapLiveNodes()
 		if err != nil {
