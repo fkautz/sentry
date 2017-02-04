@@ -72,7 +72,7 @@ func initConfig() {
 	}
 
 	viper.SetConfigName("sentry") // name of config file (without extension)
-	viper.AddConfigPath("$HOME")   // adding home directory as first search path
+	viper.AddConfigPath("$HOME")  // adding home directory as first search path
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv() // read in environment variables that match
 

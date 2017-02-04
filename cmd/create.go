@@ -41,9 +41,10 @@ to quickly create a Cobra application.`,
 			AprsFilter:   "s//# s//& s/# s/&",
 			Cutoff:       "25h",
 			Mailgun: &sentrylib.MailgunConfig{
-				Domain:    "example.com",
-				ApiKey:    "apikey",
-				PubApiKey: "pubapikey",
+				Domain:      "example.com",
+				ApiKey:      "apikey",
+				PubApiKey:   "pubapikey",
+				FromAddress: "Sentry Alert Service <alert@example.com>",
 			},
 		}
 		if _, err := os.Stat("sentry.yaml"); os.IsNotExist(err) {

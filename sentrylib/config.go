@@ -10,7 +10,8 @@ type Config struct {
 }
 
 type MailgunConfig struct {
-	Domain    string
-	ApiKey    string
-	PubApiKey string
+	Domain      string
+	ApiKey      string
+	PubApiKey   string
+	FromAddress string
 }
