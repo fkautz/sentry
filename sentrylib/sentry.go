@@ -66,10 +66,9 @@ func (server *sentry) Serve() error {
 		}
 		err = client.Error()
 		if err != io.EOF {
-			log.Fatalln(err)
 			return err
 		} else {
-			client.Dial()
+			log.Println("Redial Triggered:", err)
 		}
 	}
 }
