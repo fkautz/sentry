@@ -15,9 +15,12 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/fkautz/sentry/sentrylib"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 // createCmd represents the create command
@@ -31,8 +34,30 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("create called")
+		config := sentrylib.Config{
+			AprsServer:   "noam.aprs2.net:14580",
+			AprsUser:     "MYCALL",
+			AprsPasscode: "12345",
+			AprsFilter:   "s//# s//& s/# s/&",
+			Cutoff:       "25h",
+			Mailgun: &sentrylib.MailgunConfig{
+				Domain:    "example.com",
+				ApiKey:    "apikey",
+				PubApiKey: "pubapikey",
+			},
+		}
+		if _, err := os.Stat("sentry.yaml"); os.IsNotExist(err) {
+			configBytes, err := yaml.Marshal(config)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			err = ioutil.WriteFile("sentry.yaml", configBytes, 0600)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		} else {
+			log.Fatalln("Config file sentry.yaml already exists")
+		}
 	},
 }
 
