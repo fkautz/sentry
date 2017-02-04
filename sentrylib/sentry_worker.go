@@ -82,7 +82,7 @@ func (worker *sentryWorker) ReapLiveNodes() ([]CallsignTime, error) {
 	}
 
 	for k, v := range nodes {
-		log.Println("Readping:", k, v)
+		log.Println("Reaping:", k, v)
 		worker.store.RemoveLive(v.Callsign, cutoff)
 		worker.store.AddDead(v.Callsign, v.LastSeen)
 	}
