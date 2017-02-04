@@ -75,6 +75,7 @@ func (server *sentry) Serve() error {
 }
 
 func RunReaper(sentryWorker SentryWorker, duration time.Duration) {
+	time.Sleep(duration)
 	for {
 		nodes, err := sentryWorker.ReapLiveNodes()
 		if err != nil {
