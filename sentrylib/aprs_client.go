@@ -38,6 +38,9 @@ func NewAprsClient(server, callsign, passcode, filter string) AprsClient {
 }
 
 func (client *aprsClient) Dial() error {
+	if client.conn != nil {
+		client.conn.Close()
+	}
 	var conn net.Conn
 	var reader *bufio.Reader
 	var err error
