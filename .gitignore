@@ -1,3 +1,4 @@
 sentry.yaml
 sentry.db
 sentry
+level.db
