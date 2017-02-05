@@ -112,7 +112,7 @@ func (store *boltStore) remove(bucket, callsign string, ts time.Time) error {
 		if tsbytes == nil {
 			return nil
 		}
-		var lastSeen time.Time
+		lastSeen := time.Now()
 		err = lastSeen.UnmarshalBinary(tsbytes)
 		if err != nil {
 			log.Println("Unable to parse time, forcing callsign deletion")
@@ -143,7 +143,7 @@ func (store *boltStore) list(bucket string, ts time.Time) ([]CallsignTime, error
 		}
 		c := bucket.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var lastSeen time.Time
+			lastSeen := time.Now()
 			err := lastSeen.UnmarshalBinary(v)
 			if err != nil {
 				continue
