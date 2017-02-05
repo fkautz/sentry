@@ -53,21 +53,21 @@ func (server *sentry) Serve() error {
 		if err != nil {
 			return err
 		}
-		count := 0
-		totalTime := 0 * time.Second
+		//count := 0
+		//totalTime := 0 * time.Second
 		for client.Next() {
 			frame, err := client.Frame()
 			if err != nil {
 				log.Println(err)
 			}
-			ts1 := time.Now()
+			//ts1 := time.Now()
 			err = worker.HandleMessage(frame)
-			ts2 := time.Now()
-			dur := ts2.Sub(ts1)
-			count++
-			totalTime += dur
-			avg := time.Duration(int64(totalTime) / int64(count))
-			log.Println("\t\t\t\t\t", avg, dur)
+			//ts2 := time.Now()
+			//dur := ts2.Sub(ts1)
+			//count++
+			//totalTime += dur
+			//avg := time.Duration(int64(totalTime) / int64(count))
+			//log.Println("\t\t\t\t\t", avg, dur)
 			if err != nil {
 				if !(err == FrameNotValidError || err.Error() == "no positions found") {
 					log.Println(err)
