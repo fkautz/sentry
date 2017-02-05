@@ -87,7 +87,7 @@ func (store *boltStore) get(bucket, callsign string) (time.Time, bool, error) {
 		return time.Time{}, false, err
 	}
 
-	var ts time.Time
+	ts := time.Now()
 	err = ts.UnmarshalBinary(byteResult)
 	if err != nil {
 		return time.Time{}, false, err
