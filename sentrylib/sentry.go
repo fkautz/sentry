@@ -45,7 +45,7 @@ func (server *sentry) Serve() error {
 
 	worker := NewSentryWorker(store, duration, mail)
 
-	go RunReaper(worker, duration)
+	go RunReaper(worker, duration, server.config.SkipCooldown)
 
 	for {
 		err = client.Dial()
@@ -73,8 +73,10 @@ func (server *sentry) Serve() error {
 	}
 }
 
-func RunReaper(sentryWorker SentryWorker, duration time.Duration) {
-	time.Sleep(duration)
+func RunReaper(sentryWorker SentryWorker, duration time.Duration, skipCooldown bool) {
+	if !skipCooldown {
+		time.Sleep(duration)
+	}
 	for {
 		nodes, err := sentryWorker.ReapLiveNodes()
 		if err != nil {

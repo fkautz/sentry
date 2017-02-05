@@ -6,6 +6,7 @@ type Config struct {
 	AprsPasscode string
 	AprsFilter   string
 	Cutoff       string
+	SkipCooldown bool           `yaml:"skipcooldown,omitempty"`
 	Mailgun      *MailgunConfig "mailgun,omitempty"
 }
 
