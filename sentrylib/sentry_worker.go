@@ -54,14 +54,14 @@ func (worker *sentryWorker) HandleMessage(frame aprs.Frame) error {
 	now := time.Now()
 
 	symbol := pos.Symbol.Glyph()
-	//count, err := worker.store.CountLive()
+	count, err := worker.store.CountLive()
 	if err != nil {
 		return err
 	}
 	if len(symbol) == 0 {
 		symbol = " "
 	}
-	result := fmt.Sprintf("%s\t%s", symbol, callsign)
+	result := fmt.Sprintf("%d: %s\t%s", count, symbol, callsign)
 	if len(callsign) < 8 {
 		result += "\t"
 	}
