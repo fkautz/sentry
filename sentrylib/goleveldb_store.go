@@ -1,12 +1,12 @@
 package sentrylib
 
 import (
+	"fmt"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
-	"time"
-	"fmt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"strings"
+	"time"
 )
 
 type goLevelDB struct {
@@ -73,7 +73,7 @@ func (store *goLevelDB) GetDead(callsign string) (time.Time, bool, error) {
 	return store.get("dead", callsign)
 }
 
-func (store *goLevelDB)  get(prefix, callsign string) (time.Time, bool, error) {
+func (store *goLevelDB) get(prefix, callsign string) (time.Time, bool, error) {
 	key := fmt.Sprintf("%s-%s", prefix, callsign)
 	val, err := store.db.Get([]byte(key), nil)
 	if err == leveldb.ErrNotFound {
@@ -101,7 +101,7 @@ func (store *goLevelDB) list(prefix string, ts time.Time) ([]CallsignTime, error
 	iter := store.db.NewIterator(util.BytesPrefix([]byte(prefix)), nil)
 	result := make([]CallsignTime, 0, 1000)
 	for iter.Next() {
-		callsign := strings.TrimPrefix(string(iter.Key()), prefix + "-")
+		callsign := strings.TrimPrefix(string(iter.Key()), prefix+"-")
 		lastSeen := time.Now()
 		err := lastSeen.UnmarshalBinary(iter.Value())
 		if err != nil {
@@ -158,10 +158,10 @@ func (store *goLevelDB) remove(prefix, callsign string, ts time.Time) error {
 }
 
 func (store *goLevelDB) AddEmail(callsign, email string) error {
-	return store.db.Put([]byte("email-" + callsign), []byte(email), nil)
+	return store.db.Put([]byte("email-"+callsign), []byte(email), nil)
 }
 func (store *goLevelDB) GetEmail(callsign string) (string, bool, error) {
-	val, err := store.db.Get([]byte("email-" + callsign), nil)
+	val, err := store.db.Get([]byte("email-"+callsign), nil)
 	if err == leveldb.ErrNotFound {
 		return "", false, nil
 	}

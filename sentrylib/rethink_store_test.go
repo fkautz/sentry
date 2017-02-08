@@ -377,6 +377,7 @@ func TestRethinkDBStore_AddEmail(t *testing.T) {
 	assert.Equal(t, ok, false)
 	assert.NilError(t, err)
 }
+
 //
 //func TestRethinkDBStore_ListEmail(t *testing.T) {
 //	rethinkStore.RemoveEmail("foo1")

@@ -1,9 +1,9 @@
 package sentrylib
 
 import (
-"github.com/docker/docker/pkg/testutil/assert"
-"testing"
-"time"
+	"github.com/docker/docker/pkg/testutil/assert"
+	"testing"
+	"time"
 )
 
 var leveldbTestStore Store

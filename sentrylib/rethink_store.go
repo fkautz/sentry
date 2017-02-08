@@ -6,8 +6,8 @@ import (
 )
 
 type rethinkDBStore struct {
-	session   *r.Session
-	db        string
+	session *r.Session
+	db      string
 }
 
 type rethinkEntry struct {
@@ -30,12 +30,12 @@ func NewRethinkDB(address, db string) (Store, error) {
 		return nil, err
 	}
 
-	r.DBDrop(db).Exec(session)
-	r.DBCreate(db).Exec(session)
-
-	r.DB(db).TableDrop("live").Exec(session)
-	r.DB(db).TableDrop("dead").Exec(session)
-	r.DB(db).TableDrop("email").Exec(session)
+	//r.DBDrop(db).Exec(session)
+	//r.DBCreate(db).Exec(session)
+	//
+	//r.DB(db).TableDrop("live").Exec(session)
+	//r.DB(db).TableDrop("dead").Exec(session)
+	//r.DB(db).TableDrop("email").Exec(session)
 
 	r.DB(db).TableCreate("live").Exec(session)
 	r.DB(db).TableCreate("dead").Exec(session)
@@ -55,7 +55,6 @@ func NewRethinkDB(address, db string) (Store, error) {
 	store := &rethinkDBStore{
 		session: session,
 		db:      db,
-
 	}
 
 	return store, nil
@@ -145,7 +144,7 @@ func (store *rethinkDBStore) ListDead() ([]CallsignTime, error) {
 }
 
 func (store *rethinkDBStore) list(prefix string, ts time.Time) ([]CallsignTime, error) {
-	res, err := r.DB(store.db).Table(prefix).Between(time.Time{}, ts, r.BetweenOpts{Index:"lastseen"}).OrderBy("callsign").Run(store.session)
+	res, err := r.DB(store.db).Table(prefix).Between(time.Time{}, ts, r.BetweenOpts{Index: "lastseen"}).OrderBy("callsign").Run(store.session)
 	if res != nil {
 		defer res.Close()
 	}
