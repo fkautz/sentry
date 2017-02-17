@@ -1,13 +1,15 @@
-package sentrylib
+package sentry_rethink
+
 
 import (
 	"github.com/docker/docker/pkg/testutil/assert"
 	"log"
 	"testing"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
-var rethinkStore Store
+var rethinkStore sentry_store.Store
 
 func init() {
 	var err error
@@ -91,7 +93,7 @@ func TestRethinkDBStore_ListLive(t *testing.T) {
 
 	list, err := rethinkStore.ListLive(time.Now())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, list, make([]CallsignTime, 0))
+	assert.DeepEqual(t, list, make([]sentry_store.CallsignTime, 0))
 
 	rethinkStore.AddLive("FOO1")
 	rethinkStore.AddLive("FOO2")
@@ -255,7 +257,7 @@ func TestRethinkDBStore_ListDead(t *testing.T) {
 
 	list, err := rethinkStore.ListDead()
 	assert.NilError(t, err)
-	assert.DeepEqual(t, list, make([]CallsignTime, 0))
+	assert.DeepEqual(t, list, make([]sentry_store.CallsignTime, 0))
 
 	rethinkStore.AddDead("FOO1", time.Now())
 	rethinkStore.AddDead("FOO2", time.Now())
@@ -378,54 +380,54 @@ func TestRethinkDBStore_AddEmail(t *testing.T) {
 	assert.NilError(t, err)
 }
 
-//
-//func TestRethinkDBStore_ListEmail(t *testing.T) {
-//	rethinkStore.RemoveEmail("foo1")
-//	rethinkStore.RemoveEmail("foo2")
-//	rethinkStore.RemoveEmail("foo3")
-//	rethinkStore.RemoveEmail("foo4")
-//	rethinkStore.RemoveEmail("foo5")
-//	defer rethinkStore.RemoveEmail("foo1")
-//	defer rethinkStore.RemoveEmail("foo2")
-//	defer rethinkStore.RemoveEmail("foo3")
-//	defer rethinkStore.RemoveEmail("foo4")
-//	defer rethinkStore.RemoveEmail("foo5")
-//
-//	list, err := rethinkStore.ListEmail()
-//	assert.Equal(t, len(list), 0)
-//	assert.NilError(t, err)
-//
-//	rethinkStore.AddEmail("foo1", "bar1")
-//	rethinkStore.AddEmail("foo2", "bar2")
-//	rethinkStore.AddEmail("foo3", "bar3")
-//	rethinkStore.AddEmail("foo4", "bar4")
-//	rethinkStore.AddEmail("foo5", "bar5")
-//
-//	expectedList := make([]CallsignEmail, 5, 5)
-//	expectedList[0] = CallsignEmail{"foo1", "bar1"}
-//	expectedList[1] = CallsignEmail{"foo2", "bar2"}
-//	expectedList[2] = CallsignEmail{"foo3", "bar3"}
-//	expectedList[3] = CallsignEmail{"foo4", "bar4"}
-//	expectedList[4] = CallsignEmail{"foo5", "bar5"}
-//
-//	list, err = rethinkStore.ListEmail()
-//	assert.DeepEqual(t, list, expectedList)
-//	assert.NilError(t, err)
-//
-//	rethinkStore.RemoveEmail("foo4")
-//	rethinkStore.RemoveEmail("foo5")
-//
-//	expectedList = expectedList[0:3]
-//
-//	list, err = rethinkStore.ListEmail()
-//	assert.DeepEqual(t, list, expectedList)
-//	assert.NilError(t, err)
-//
-//	rethinkStore.RemoveEmail("foo1")
-//	rethinkStore.RemoveEmail("foo2")
-//	rethinkStore.RemoveEmail("foo3")
-//
-//	list, err = rethinkStore.ListEmail()
-//	assert.Equal(t, len(list), 0)
-//	assert.NilError(t, err)
-//}
+
+func TestRethinkDBStore_ListEmail(t *testing.T) {
+	rethinkStore.RemoveEmail("foo1")
+	rethinkStore.RemoveEmail("foo2")
+	rethinkStore.RemoveEmail("foo3")
+	rethinkStore.RemoveEmail("foo4")
+	rethinkStore.RemoveEmail("foo5")
+	defer rethinkStore.RemoveEmail("foo1")
+	defer rethinkStore.RemoveEmail("foo2")
+	defer rethinkStore.RemoveEmail("foo3")
+	defer rethinkStore.RemoveEmail("foo4")
+	defer rethinkStore.RemoveEmail("foo5")
+
+	list, err := rethinkStore.ListEmail()
+	assert.Equal(t, len(list), 0)
+	assert.NilError(t, err)
+
+	rethinkStore.AddEmail("foo1", "bar1")
+	rethinkStore.AddEmail("foo2", "bar2")
+	rethinkStore.AddEmail("foo3", "bar3")
+	rethinkStore.AddEmail("foo4", "bar4")
+	rethinkStore.AddEmail("foo5", "bar5")
+
+	expectedList := make([]sentry_store.CallsignEmail, 5, 5)
+	expectedList[0] = sentry_store.CallsignEmail{"foo1", "bar1"}
+	expectedList[1] = sentry_store.CallsignEmail{"foo2", "bar2"}
+	expectedList[2] = sentry_store.CallsignEmail{"foo3", "bar3"}
+	expectedList[3] = sentry_store.CallsignEmail{"foo4", "bar4"}
+	expectedList[4] = sentry_store.CallsignEmail{"foo5", "bar5"}
+
+	list, err = rethinkStore.ListEmail()
+	assert.DeepEqual(t, list, expectedList)
+	assert.NilError(t, err)
+
+	rethinkStore.RemoveEmail("foo4")
+	rethinkStore.RemoveEmail("foo5")
+
+	expectedList = expectedList[0:3]
+
+	list, err = rethinkStore.ListEmail()
+	assert.DeepEqual(t, list, expectedList)
+	assert.NilError(t, err)
+
+	rethinkStore.RemoveEmail("foo1")
+	rethinkStore.RemoveEmail("foo2")
+	rethinkStore.RemoveEmail("foo3")
+
+	list, err = rethinkStore.ListEmail()
+	assert.Equal(t, len(list), 0)
+	assert.NilError(t, err)
+}

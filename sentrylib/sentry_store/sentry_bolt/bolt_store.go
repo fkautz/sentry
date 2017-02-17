@@ -1,17 +1,18 @@
-package sentrylib
+package sentry_bolt
 
 import (
 	"errors"
 	"github.com/boltdb/bolt"
 	"log"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 type boltStore struct {
 	db *bolt.DB
 }
 
-func NewBoltStore(f string) (Store, error) {
+func NewBoltStore(f string) (sentry_store.Store, error) {
 	db, err := bolt.Open(f, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		log.Panicln("Unable to open or create database")
@@ -125,16 +126,16 @@ func (store *boltStore) remove(bucket, callsign string, ts time.Time) error {
 		return nil
 	})
 }
-func (store *boltStore) ListLive(ts time.Time) ([]CallsignTime, error) {
+func (store *boltStore) ListLive(ts time.Time) ([]sentry_store.CallsignTime, error) {
 	return store.list("live", ts)
 }
 
-func (store *boltStore) ListDead() ([]CallsignTime, error) {
+func (store *boltStore) ListDead() ([]sentry_store.CallsignTime, error) {
 	return store.list("dead", time.Now())
 }
 
-func (store *boltStore) list(bucket string, ts time.Time) ([]CallsignTime, error) {
-	results := make([]CallsignTime, 0, 10000)
+func (store *boltStore) list(bucket string, ts time.Time) ([]sentry_store.CallsignTime, error) {
+	results := make([]sentry_store.CallsignTime, 0, 10000)
 
 	err := store.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucket))
@@ -150,7 +151,7 @@ func (store *boltStore) list(bucket string, ts time.Time) ([]CallsignTime, error
 			}
 			lastSeen = lastSeen.UTC()
 			if lastSeen.Before(ts) || lastSeen.Equal(ts) {
-				cst := CallsignTime{string(k), lastSeen}
+				cst := sentry_store.CallsignTime{string(k), lastSeen}
 				results = append(results, cst)
 			}
 		}
@@ -226,8 +227,8 @@ func (store *boltStore) RemoveEmail(callsign string) error {
 	})
 }
 
-func (store *boltStore) ListEmail() ([]CallsignEmail, error) {
-	emails := make([]CallsignEmail, 0, 1000)
+func (store *boltStore) ListEmail() ([]sentry_store.CallsignEmail, error) {
+	emails := make([]sentry_store.CallsignEmail, 0, 1000)
 	err := store.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("emails"))
 		if bucket == nil {
@@ -235,7 +236,7 @@ func (store *boltStore) ListEmail() ([]CallsignEmail, error) {
 		}
 		c := bucket.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			email := CallsignEmail{string(k), string(v)}
+			email := sentry_store.CallsignEmail{string(k), string(v)}
 			emails = append(emails, email)
 		}
 		return nil

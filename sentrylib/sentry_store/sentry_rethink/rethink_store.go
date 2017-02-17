@@ -1,6 +1,7 @@
-package sentrylib
+package sentry_rethink
 
 import (
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	r "gopkg.in/gorethink/gorethink.v3"
 	"time"
 )
@@ -22,7 +23,7 @@ type rethinkEmail struct {
 	Id       string `gorethink:"id,omitempty"`
 }
 
-func NewRethinkDB(address, db string) (Store, error) {
+func NewRethinkDB(address, db string) (sentry_store.Store, error) {
 	session, err := r.Connect(r.ConnectOpts{
 		Address: address,
 	})
@@ -30,12 +31,12 @@ func NewRethinkDB(address, db string) (Store, error) {
 		return nil, err
 	}
 
-	//r.DBDrop(db).Exec(session)
-	//r.DBCreate(db).Exec(session)
-	//
-	//r.DB(db).TableDrop("live").Exec(session)
-	//r.DB(db).TableDrop("dead").Exec(session)
-	//r.DB(db).TableDrop("email").Exec(session)
+	r.DBDrop(db).Exec(session)
+	r.DBCreate(db).Exec(session)
+
+	r.DB(db).TableDrop("live").Exec(session)
+	r.DB(db).TableDrop("dead").Exec(session)
+	r.DB(db).TableDrop("email").Exec(session)
 
 	r.DB(db).TableCreate("live").Exec(session)
 	r.DB(db).TableCreate("dead").Exec(session)
@@ -135,15 +136,15 @@ func (store *rethinkDBStore) getByIndex(prefix, callsign string) (rethinkEntry, 
 	return m, true, err
 }
 
-func (store *rethinkDBStore) ListLive(ts time.Time) ([]CallsignTime, error) {
+func (store *rethinkDBStore) ListLive(ts time.Time) ([]sentry_store.CallsignTime, error) {
 	return store.list("live", ts)
 }
 
-func (store *rethinkDBStore) ListDead() ([]CallsignTime, error) {
+func (store *rethinkDBStore) ListDead() ([]sentry_store.CallsignTime, error) {
 	return store.list("dead", time.Now())
 }
 
-func (store *rethinkDBStore) list(prefix string, ts time.Time) ([]CallsignTime, error) {
+func (store *rethinkDBStore) list(prefix string, ts time.Time) ([]sentry_store.CallsignTime, error) {
 	res, err := r.DB(store.db).Table(prefix).Between(time.Time{}, ts, r.BetweenOpts{Index: "lastseen"}).OrderBy("callsign").Run(store.session)
 	if res != nil {
 		defer res.Close()
@@ -151,14 +152,14 @@ func (store *rethinkDBStore) list(prefix string, ts time.Time) ([]CallsignTime, 
 	if err != nil {
 		return nil, err
 	}
-	filteredRows := make([]CallsignTime, 0)
+	filteredRows := make([]sentry_store.CallsignTime, 0)
 	if res.IsNil() {
 		return filteredRows, nil
 	}
 	var entry rethinkEntry
 	for res.Next(&entry) {
 		if entry.LastSeen.Before(ts) {
-			filteredRows = append(filteredRows, CallsignTime{entry.Callsign, entry.LastSeen})
+			filteredRows = append(filteredRows, sentry_store.CallsignTime{entry.Callsign, entry.LastSeen})
 		}
 	}
 	return filteredRows, nil
@@ -218,7 +219,7 @@ func (store *rethinkDBStore) GetEmail(callsign string) (string, bool, error) {
 	return res.Email, true, nil
 }
 
-func (store *rethinkDBStore) ListEmail() ([]CallsignEmail, error) {
+func (store *rethinkDBStore) ListEmail() ([]sentry_store.CallsignEmail, error) {
 	res, err := r.DB(store.db).Table("email").OrderBy("callsign").Run(store.session)
 	if res != nil {
 		defer res.Close()
@@ -226,13 +227,13 @@ func (store *rethinkDBStore) ListEmail() ([]CallsignEmail, error) {
 	if err != nil {
 		return nil, err
 	}
-	filteredRows := make([]CallsignEmail, 0)
+	filteredRows := make([]sentry_store.CallsignEmail, 0)
 	if res.IsNil() {
 		return filteredRows, nil
 	}
 	var entry rethinkEmail
 	for res.Next(&entry) {
-		filteredRows = append(filteredRows, CallsignEmail{entry.Callsign, entry.Email})
+		filteredRows = append(filteredRows, sentry_store.CallsignEmail{entry.Callsign, entry.Email})
 	}
 	return filteredRows, nil
 }

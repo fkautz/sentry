@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store/sentry_bolt"
 )
 
 type Sentry interface {
@@ -25,9 +26,10 @@ func (server *sentry) Serve() error {
 	log.SetFlags(log.Flags() | log.Llongfile)
 	client := NewAprsClient(server.config.AprsServer, server.config.AprsUser, server.config.AprsPasscode, server.config.AprsFilter)
 
-	store, err := NewBoltStore("sentry.db")
-	//store, err := NewRethinkDB("localhost", "dev")
-	//store, err := NewGoLevelDB("level.db")
+	store, err := sentry_bolt.NewBoltStore("sentry.db")
+	//store, err := sentry_rethink.NewRethinkDB("localhost", "dev")
+	//store, err := sentry_goleveldb.NewGoLevelDB("level.db")
+	//store, err := sentry_pg.NewPostgresDB("sentry")
 	if err != nil {
 		return err
 	}

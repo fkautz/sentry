@@ -1,12 +1,13 @@
-package sentrylib
+package sentry_goleveldb
 
 import (
 	"github.com/docker/docker/pkg/testutil/assert"
 	"testing"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
-var leveldbTestStore Store
+var leveldbTestStore sentry_store.Store
 
 func init() {
 	leveldbTestStore, _ = NewGoLevelDB("/tmp/test_lvldb.db")
@@ -79,7 +80,7 @@ func TestGoLevelDBStore_ListLive(t *testing.T) {
 
 	list, err := leveldbTestStore.ListLive(time.Now())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, list, make([]CallsignTime, 0))
+	assert.DeepEqual(t, list, make([]sentry_store.CallsignTime, 0))
 
 	leveldbTestStore.AddLive("FOO1")
 	leveldbTestStore.AddLive("FOO2")
@@ -238,7 +239,7 @@ func TestGoLevelDBStore_ListDead(t *testing.T) {
 
 	list, err := leveldbTestStore.ListDead()
 	assert.NilError(t, err)
-	assert.DeepEqual(t, list, make([]CallsignTime, 0))
+	assert.DeepEqual(t, list, make([]sentry_store.CallsignTime, 0))
 
 	leveldbTestStore.AddDead("FOO1", time.Now())
 	leveldbTestStore.AddDead("FOO2", time.Now())
@@ -383,12 +384,12 @@ func TestGoLevelDBStore_ListEmail(t *testing.T) {
 	leveldbTestStore.AddEmail("foo4", "bar4")
 	leveldbTestStore.AddEmail("foo5", "bar5")
 
-	expectedList := make([]CallsignEmail, 5, 5)
-	expectedList[0] = CallsignEmail{"foo1", "bar1"}
-	expectedList[1] = CallsignEmail{"foo2", "bar2"}
-	expectedList[2] = CallsignEmail{"foo3", "bar3"}
-	expectedList[3] = CallsignEmail{"foo4", "bar4"}
-	expectedList[4] = CallsignEmail{"foo5", "bar5"}
+	expectedList := make([]sentry_store.CallsignEmail, 5, 5)
+	expectedList[0] = sentry_store.CallsignEmail{"foo1", "bar1"}
+	expectedList[1] = sentry_store.CallsignEmail{"foo2", "bar2"}
+	expectedList[2] = sentry_store.CallsignEmail{"foo3", "bar3"}
+	expectedList[3] = sentry_store.CallsignEmail{"foo4", "bar4"}
+	expectedList[4] = sentry_store.CallsignEmail{"foo5", "bar5"}
 
 	list, err = leveldbTestStore.ListEmail()
 	assert.DeepEqual(t, list, expectedList)

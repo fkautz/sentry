@@ -7,13 +7,14 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 type webServer struct {
-	store Store
+	store sentry_store.Store
 }
 
-func NewWebServer(store Store) {
+func NewWebServer(store sentry_store.Store) {
 	router := mux.NewRouter()
 	ws := webServer{store: store}
 	router.HandleFunc("/api/dead", ws.findDead).Methods("GET")
@@ -62,7 +63,7 @@ func (s webServer) findDead(w http.ResponseWriter, r *http.Request) {
 }
 
 type CallsignTimeLive struct {
-	CallsignTime
+	sentry_store.CallsignTime
 	SeenRecently bool
 }
 
@@ -91,7 +92,7 @@ func (s webServer) findNode(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Could not find node with callsign '" + callsign + "'"))
 			return
 		}
-		ct := CallsignTime{callsign, ts}
+		ct := sentry_store.CallsignTime{callsign, ts}
 		ctl := CallsignTimeLive{ct, seenRecently}
 		res, err := json.MarshalIndent(ctl, "", "    ")
 		if err != nil {

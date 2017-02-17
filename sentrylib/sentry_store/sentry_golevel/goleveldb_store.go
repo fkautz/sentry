@@ -1,4 +1,4 @@
-package sentrylib
+package sentry_goleveldb
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"strings"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 type goLevelDB struct {
@@ -15,7 +16,7 @@ type goLevelDB struct {
 
 var NotImplementedError error = errors.New("Not Implemented")
 
-func NewGoLevelDB(file string) (Store, error) {
+func NewGoLevelDB(file string) (sentry_store.Store, error) {
 	db, err := leveldb.OpenFile(file, nil)
 	if err != nil {
 		return nil, err
@@ -89,17 +90,17 @@ func (store *goLevelDB) get(prefix, callsign string) (time.Time, bool, error) {
 	return ts, true, nil
 }
 
-func (store *goLevelDB) ListLive(ts time.Time) ([]CallsignTime, error) {
+func (store *goLevelDB) ListLive(ts time.Time) ([]sentry_store.CallsignTime, error) {
 	return store.list("live", ts)
 }
 
-func (store *goLevelDB) ListDead() ([]CallsignTime, error) {
+func (store *goLevelDB) ListDead() ([]sentry_store.CallsignTime, error) {
 	return store.list("dead", time.Now())
 }
 
-func (store *goLevelDB) list(prefix string, ts time.Time) ([]CallsignTime, error) {
+func (store *goLevelDB) list(prefix string, ts time.Time) ([]sentry_store.CallsignTime, error) {
 	iter := store.db.NewIterator(util.BytesPrefix([]byte(prefix)), nil)
-	result := make([]CallsignTime, 0, 1000)
+	result := make([]sentry_store.CallsignTime, 0, 1000)
 	for iter.Next() {
 		callsign := strings.TrimPrefix(string(iter.Key()), prefix+"-")
 		lastSeen := time.Now()
@@ -108,7 +109,7 @@ func (store *goLevelDB) list(prefix string, ts time.Time) ([]CallsignTime, error
 			continue
 		}
 		if lastSeen.Before(ts) {
-			result = append(result, CallsignTime{callsign, lastSeen})
+			result = append(result, sentry_store.CallsignTime{callsign, lastSeen})
 		}
 	}
 	iter.Release()
@@ -170,13 +171,13 @@ func (store *goLevelDB) GetEmail(callsign string) (string, bool, error) {
 	}
 	return string(val), true, nil
 }
-func (store *goLevelDB) ListEmail() ([]CallsignEmail, error) {
+func (store *goLevelDB) ListEmail() ([]sentry_store.CallsignEmail, error) {
 	iter := store.db.NewIterator(util.BytesPrefix([]byte("email-")), nil)
-	result := make([]CallsignEmail, 0, 1000)
+	result := make([]sentry_store.CallsignEmail, 0, 1000)
 	for iter.Next() {
 		callsign := strings.TrimPrefix(string(iter.Key()), "email-")
 		email := string(iter.Value())
-		result = append(result, CallsignEmail{callsign, email})
+		result = append(result, sentry_store.CallsignEmail{callsign, email})
 	}
 	iter.Release()
 	err := iter.Error()

@@ -1,12 +1,13 @@
-package sentrylib
+package sentry_bolt
 
 import (
 	"github.com/docker/docker/pkg/testutil/assert"
 	"testing"
 	"time"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
-var boltTestStore Store
+var boltTestStore sentry_store.Store
 
 func init() {
 	boltTestStore, _ = NewBoltStore("/tmp/test.db")
@@ -79,7 +80,7 @@ func TestBoltStore_ListLive(t *testing.T) {
 
 	list, err := boltTestStore.ListLive(time.Now())
 	assert.NilError(t, err)
-	assert.DeepEqual(t, list, make([]CallsignTime, 0))
+	assert.DeepEqual(t, list, make([]sentry_store.CallsignTime, 0))
 
 	boltTestStore.AddLive("FOO1")
 	boltTestStore.AddLive("FOO2")
@@ -238,7 +239,7 @@ func TestBoltStore_ListDead(t *testing.T) {
 
 	list, err := boltTestStore.ListDead()
 	assert.NilError(t, err)
-	assert.DeepEqual(t, list, make([]CallsignTime, 0))
+	assert.DeepEqual(t, list, make([]sentry_store.CallsignTime, 0))
 
 	boltTestStore.AddDead("FOO1", time.Now())
 	boltTestStore.AddDead("FOO2", time.Now())
@@ -383,12 +384,12 @@ func TestBoltStore_ListEmail(t *testing.T) {
 	boltTestStore.AddEmail("foo4", "bar4")
 	boltTestStore.AddEmail("foo5", "bar5")
 
-	expectedList := make([]CallsignEmail, 5, 5)
-	expectedList[0] = CallsignEmail{"foo1", "bar1"}
-	expectedList[1] = CallsignEmail{"foo2", "bar2"}
-	expectedList[2] = CallsignEmail{"foo3", "bar3"}
-	expectedList[3] = CallsignEmail{"foo4", "bar4"}
-	expectedList[4] = CallsignEmail{"foo5", "bar5"}
+	expectedList := make([]sentry_store.CallsignEmail, 5, 5)
+	expectedList[0] = sentry_store.CallsignEmail{"foo1", "bar1"}
+	expectedList[1] = sentry_store.CallsignEmail{"foo2", "bar2"}
+	expectedList[2] = sentry_store.CallsignEmail{"foo3", "bar3"}
+	expectedList[3] = sentry_store.CallsignEmail{"foo4", "bar4"}
+	expectedList[4] = sentry_store.CallsignEmail{"foo5", "bar5"}
 
 	list, err = boltTestStore.ListEmail()
 	assert.DeepEqual(t, list, expectedList)

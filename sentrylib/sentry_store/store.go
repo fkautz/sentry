@@ -1,4 +1,4 @@
-package sentrylib
+package sentry_store
 
 import "time"
 
