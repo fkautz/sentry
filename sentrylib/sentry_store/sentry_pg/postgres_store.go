@@ -117,6 +117,24 @@ func (store *postgresDBStore) remove(prefix, callsign string, ts time.Time) erro
 	return err
 }
 
+func (store *postgresDBStore) LastSeenLive() (time.Time, error) {
+	return store.lastSeen("live")
+}
+
+func (store *postgresDBStore) LastSeenDead() (time.Time, error) {
+	return store.lastSeen("dead")
+}
+
+func (store *postgresDBStore) lastSeen(bucket string) (time.Time, error) {
+	res := store.db.QueryRow("SELECT ts FROM " + bucket + " ORDER BY ts DESC LIMIT 1")
+	ts := time.Time{}
+	err := res.Scan(&ts)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return ts, nil
+}
+
 func (store *postgresDBStore) AddEmail(callsign, email string) error {
 	_, err := store.db.Exec("INSERT INTO emails (callsign, email) VALUES ($1, $2) ON CONFLICT (callsign) DO UPDATE SET callsign=$1, email=$2", callsign, email)
 	return err

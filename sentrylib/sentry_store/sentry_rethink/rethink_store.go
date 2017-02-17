@@ -182,6 +182,33 @@ func (store *rethinkDBStore) remove(prefix, callsign string, ts time.Time) error
 	return nil
 }
 
+func (store *rethinkDBStore) LastSeenLive() (time.Time, error) {
+	return store.lastSeen("live")
+}
+
+func (store *rethinkDBStore) LastSeenDead() (time.Time, error) {
+	return store.lastSeen("dead")
+}
+
+func (store *rethinkDBStore) lastSeen(bucket string) (time.Time, error) {
+	cts, err := store.list(bucket, time.Now())
+	if err != nil {
+		return time.Time{}, nil
+	}
+	maxLastSeen := time.Time{}
+	found := false
+	for _, v := range cts {
+		found = true
+		if v.LastSeen.After(maxLastSeen) {
+			maxLastSeen = v.LastSeen
+		}
+	}
+	if !found {
+		maxLastSeen = time.Now()
+	}
+	return maxLastSeen, nil
+}
+
 func (store *rethinkDBStore) AddEmail(callsign, email string) error {
 	m, _, err := store.getEmailByIndex(callsign)
 	m.Callsign = callsign

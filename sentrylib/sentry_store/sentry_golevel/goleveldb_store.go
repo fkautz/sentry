@@ -158,6 +158,33 @@ func (store *goLevelDB) remove(prefix, callsign string, ts time.Time) error {
 	return nil
 }
 
+func (store *goLevelDB) LastSeenLive() (time.Time, error) {
+	return store.lastSeen("live")
+}
+
+func (store *goLevelDB) LastSeenDead() (time.Time, error) {
+	return store.lastSeen("dead")
+}
+
+func (store *goLevelDB) lastSeen(bucket string) (time.Time, error) {
+	cts, err := store.list(bucket, time.Now())
+	if err != nil {
+		return time.Time{}, nil
+	}
+	maxLastSeen := time.Time{}
+	found := false
+	for _, v := range cts {
+		found = true
+		if v.LastSeen.After(maxLastSeen) {
+			maxLastSeen = v.LastSeen
+		}
+	}
+	if !found {
+		maxLastSeen = time.Now()
+	}
+	return maxLastSeen, nil
+}
+
 func (store *goLevelDB) AddEmail(callsign, email string) error {
 	return store.db.Put([]byte("email-"+callsign), []byte(email), nil)
 }

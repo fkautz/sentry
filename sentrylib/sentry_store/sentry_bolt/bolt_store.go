@@ -187,6 +187,33 @@ func (store *boltStore) count(bucket string) (int, error) {
 	return result, nil
 }
 
+func (store *boltStore) LastSeenLive() (time.Time, error) {
+	return store.lastSeen("live")
+}
+
+func (store *boltStore) LastSeenDead() (time.Time, error) {
+	return store.lastSeen("dead")
+}
+
+func (store *boltStore) lastSeen(bucket string) (time.Time, error) {
+	cts, err := store.list(bucket, time.Now())
+	if err != nil {
+		return time.Time{}, nil
+	}
+	maxLastSeen := time.Time{}
+	found := false
+	for _, v := range cts {
+		found = true
+		if v.LastSeen.After(maxLastSeen) {
+			maxLastSeen = v.LastSeen
+		}
+	}
+	if !found {
+		maxLastSeen = time.Now()
+	}
+	return maxLastSeen, nil
+}
+
 func (store *boltStore) AddEmail(callsign, email string) error {
 	return store.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte("emails"))

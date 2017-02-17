@@ -12,6 +12,8 @@ import (
 	"gopkg.in/yaml.v2"
 	"io"
 	"log"
+	"os"
+	"syscall"
 	"time"
 )
 
@@ -78,7 +80,7 @@ func (server *sentry) Serve() error {
 		store, err = sentry_rethink.NewRethinkDB(opts, server.config.RethinkDBConfig.Database)
 	}
 	if dbcount != 1 {
-		log.Fatalln("There should one database configured")
+		log.Fatalln("There should be one database configured")
 	}
 
 	//store, err := sentry_rethink.NewRethinkDB("localhost", "dev")
@@ -104,6 +106,8 @@ func (server *sentry) Serve() error {
 	worker := NewSentryWorker(store, duration, mail)
 
 	go RunReaper(worker, duration, server.config.SkipCooldown)
+
+	go Watchdog(worker)
 
 	for {
 		err = client.Dial()
@@ -154,5 +158,20 @@ func RunReaper(sentryWorker SentryWorker, duration time.Duration, skipCooldown b
 			sentryWorker.Email(v.Callsign, v.LastSeen)
 		}
 		time.Sleep(1 * time.Second)
+	}
+}
+
+func Watchdog(sentryWorker SentryWorker) {
+	for {
+		time.Sleep(1 * time.Minute)
+		ts, err := sentryWorker.LastSeen()
+		if err != nil {
+			log.Fatalln("Unable to access database\n", err)
+		}
+		log.Println(time.Now(), ts, time.Now().Sub(ts))
+		if time.Now().Sub(ts) > time.Minute {
+			log.Println("Stream failed and did not close connection, restart")
+			syscall.Exec("sentry", os.Args, os.Environ())
+		}
 	}
 }

@@ -23,6 +23,8 @@ type EntryStore interface {
 	GetLive(callsign string) (time.Time, bool, error)
 	ListLive(ts time.Time) ([]CallsignTime, error)
 	RemoveLive(callsign string, ts time.Time) error
+	LastSeenLive() (time.Time, error)
+	LastSeenDead() (time.Time, error)
 
 	AddDead(callsign string, ts time.Time) error
 	CountDead() (int, error)

@@ -13,6 +13,7 @@ type SentryWorker interface {
 	HandleMessage(frame aprs.Frame) error
 	ReapLiveNodes() ([]sentry_store.CallsignTime, error)
 	Email(callsign string, ts time.Time)
+	LastSeen() (time.Time, error)
 }
 
 type sentryWorker struct {
@@ -103,4 +104,8 @@ func (worker *sentryWorker) Email(callsign string, ts time.Time) {
 			log.Println(err)
 		}
 	}
+}
+
+func (worker *sentryWorker) LastSeen() (time.Time, error) {
+	return worker.store.LastSeenLive()
 }
