@@ -151,7 +151,7 @@ func RunReaper(sentryWorker SentryWorker, duration time.Duration, skipCooldown b
 			continue
 		}
 		for _, v := range nodes {
-			go sentryWorker.Email(v.Callsign, v.LastSeen)
+			sentryWorker.Email(v.Callsign, v.LastSeen)
 		}
 		time.Sleep(1 * time.Second)
 	}
