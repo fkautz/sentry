@@ -2,10 +2,10 @@ package sentry_pg
 
 import (
 	"github.com/docker/docker/pkg/testutil/assert"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	"log"
 	"testing"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 var postgresStore sentry_store.Store
@@ -380,7 +380,6 @@ func TestPostgresStore_AddEmail(t *testing.T) {
 	assert.Equal(t, ok, false)
 	assert.NilError(t, err)
 }
-
 
 func TestPostgresStore_ListEmail(t *testing.T) {
 	postgresStore.RemoveEmail("foo1")

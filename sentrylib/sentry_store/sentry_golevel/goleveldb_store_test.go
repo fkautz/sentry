@@ -2,9 +2,9 @@ package sentry_goleveldb
 
 import (
 	"github.com/docker/docker/pkg/testutil/assert"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	"testing"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 var leveldbTestStore sentry_store.Store

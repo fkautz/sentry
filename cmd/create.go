@@ -15,9 +15,10 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/fkautz/sentry/sentrylib"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
@@ -40,6 +41,16 @@ to quickly create a Cobra application.`,
 			AprsPasscode: "12345",
 			AprsFilter:   "s//# s//& s/# s/&",
 			Cutoff:       "25h",
+			BoltConfig: &sentrylib.BoltConfig{
+				File: "sentry.db",
+			},
+			PostgresConfig: &sentrylib.PostgresConfig{
+				User:     "user",
+				Password: "pw",
+				Host:     "127.0.0.1",
+				DbName:   "sentry",
+				SslMode:  "disable",
+			},
 			Mailgun: &sentrylib.MailgunConfig{
 				Domain:      "example.com",
 				ApiKey:      "apikey",
@@ -47,17 +58,19 @@ to quickly create a Cobra application.`,
 				FromAddress: "Sentry Alert Service <alert@example.com>",
 			},
 		}
-		if _, err := os.Stat("sentry.yaml"); os.IsNotExist(err) {
-			configBytes, err := yaml.Marshal(config)
+		if _, err := os.Stat("sentry.json"); os.IsNotExist(err) {
+			var buf bytes.Buffer
+			encoder := json.NewEncoder(&buf)
+			encoder.SetEscapeHTML(false)
+			encoder.SetIndent("", "  ")
+			err := encoder.Encode(config)
 			if err != nil {
 				log.Fatalln(err)
 			}
-			err = ioutil.WriteFile("sentry.yaml", configBytes, 0600)
-			if err != nil {
-				log.Fatalln(err)
-			}
+
+			ioutil.WriteFile("sentry.json", buf.Bytes(), 0600)
 		} else {
-			log.Fatalln("Config file sentry.yaml already exists")
+			log.Fatalln("Config file sentry.json already exists")
 		}
 	},
 }

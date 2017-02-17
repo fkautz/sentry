@@ -3,9 +3,9 @@ package sentry_bolt
 import (
 	"errors"
 	"github.com/boltdb/bolt"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	"log"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 type boltStore struct {

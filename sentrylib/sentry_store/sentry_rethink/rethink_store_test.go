@@ -1,12 +1,11 @@
 package sentry_rethink
 
-
 import (
 	"github.com/docker/docker/pkg/testutil/assert"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	"log"
 	"testing"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 var rethinkStore sentry_store.Store
@@ -379,7 +378,6 @@ func TestRethinkDBStore_AddEmail(t *testing.T) {
 	assert.Equal(t, ok, false)
 	assert.NilError(t, err)
 }
-
 
 func TestRethinkDBStore_ListEmail(t *testing.T) {
 	rethinkStore.RemoveEmail("foo1")

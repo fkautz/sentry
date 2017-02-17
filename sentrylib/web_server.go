@@ -2,12 +2,12 @@ package sentrylib
 
 import (
 	"encoding/json"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 type webServer struct {

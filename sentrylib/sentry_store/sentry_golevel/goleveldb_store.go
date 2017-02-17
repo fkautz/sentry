@@ -2,12 +2,12 @@ package sentry_goleveldb
 
 import (
 	"fmt"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"strings"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store"
 )
 
 type goLevelDB struct {

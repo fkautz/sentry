@@ -1,4 +1,5 @@
 sentry.yaml
+sentry.json
 sentry.db
 sentry
 level.db

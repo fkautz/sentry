@@ -2,10 +2,17 @@ package sentrylib
 
 import (
 	"errors"
+	"fmt"
+	"github.com/fkautz/sentry/sentrylib/sentry_store"
+	"github.com/fkautz/sentry/sentrylib/sentry_store/sentry_bolt"
+	"github.com/fkautz/sentry/sentrylib/sentry_store/sentry_golevel"
+	"github.com/fkautz/sentry/sentrylib/sentry_store/sentry_pg"
+	"github.com/fkautz/sentry/sentrylib/sentry_store/sentry_rethink"
+	"gopkg.in/gorethink/gorethink.v3"
+	"gopkg.in/yaml.v2"
 	"io"
 	"log"
 	"time"
-	"github.com/fkautz/sentry/sentrylib/sentry_store/sentry_bolt"
 )
 
 type Sentry interface {
@@ -26,7 +33,54 @@ func (server *sentry) Serve() error {
 	log.SetFlags(log.Flags() | log.Llongfile)
 	client := NewAprsClient(server.config.AprsServer, server.config.AprsUser, server.config.AprsPasscode, server.config.AprsFilter)
 
-	store, err := sentry_bolt.NewBoltStore("sentry.db")
+	mout, _ := yaml.Marshal(server.config)
+	log.Println(string(mout))
+
+	dbcount := 0
+	var store sentry_store.Store
+	var err error
+	if server.config.BoltConfig != nil {
+		dbcount++
+		store, err = sentry_bolt.NewBoltStore("sentry.db")
+	}
+	if server.config.PostgresConfig != nil {
+		dbcount++
+		connString := ""
+		if server.config.PostgresConfig.ConnString != "" {
+			connString = server.config.PostgresConfig.ConnString
+		} else {
+			user := server.config.PostgresConfig.User
+			password := server.config.PostgresConfig.Password
+			host := server.config.PostgresConfig.Host
+			dbname := server.config.PostgresConfig.DbName
+			sslmode := server.config.PostgresConfig.SslMode
+			connString = fmt.Sprintf("user=%s password='%s' host=%s dbname=%s sslmode=%s", user, password, host, dbname, sslmode)
+		}
+		log.Println(connString)
+		store, err = sentry_pg.NewPostgresDB(connString)
+	}
+	if server.config.GoLevelDBConfig != nil {
+		dbcount++
+		store, err = sentry_goleveldb.NewGoLevelDB(server.config.GoLevelDBConfig.File)
+	}
+	if server.config.RethinkDBConfig != nil {
+		dbcount++
+		opts := gorethink.ConnectOpts{}
+		if server.config.RethinkDBConfig.Address != "" {
+			opts.Address = server.config.RethinkDBConfig.Address
+		}
+		if server.config.RethinkDBConfig.Username != "" {
+			opts.Username = server.config.RethinkDBConfig.Username
+		}
+		if server.config.RethinkDBConfig.Password != "" {
+			opts.Password = server.config.RethinkDBConfig.Password
+		}
+		store, err = sentry_rethink.NewRethinkDB(opts, server.config.RethinkDBConfig.Database)
+	}
+	if dbcount != 1 {
+		log.Fatalln("There should one database configured")
+	}
+
 	//store, err := sentry_rethink.NewRethinkDB("localhost", "dev")
 	//store, err := sentry_goleveldb.NewGoLevelDB("level.db")
 	//store, err := sentry_pg.NewPostgresDB("sentry")

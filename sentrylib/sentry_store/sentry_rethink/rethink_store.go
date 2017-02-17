@@ -23,10 +23,8 @@ type rethinkEmail struct {
 	Id       string `gorethink:"id,omitempty"`
 }
 
-func NewRethinkDB(address, db string) (sentry_store.Store, error) {
-	session, err := r.Connect(r.ConnectOpts{
-		Address: address,
-	})
+func NewRethinkDB(opts r.ConnectOpts, db string) (sentry_store.Store, error) {
+	session, err := r.Connect(opts)
 	if err != nil {
 		return nil, err
 	}
