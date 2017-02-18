@@ -1,5 +1,7 @@
 sentry.yaml
-sentry.json
+sentry.json*
+test.json*
 sentry.db
 sentry
 level.db
+rethinkdb_data
