@@ -1,0 +1,8 @@
+#*
+*.6
+*.a
+*~
+6.out
+_*
+/ax25/ax25
+/gate/notify.json
