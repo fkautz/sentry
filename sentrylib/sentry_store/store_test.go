@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/gorethink/gorethink.v3"
 	"log"
+	"os"
 	"testing"
 	"time"
 )
@@ -20,6 +21,16 @@ var storages []sentry_store.Store
 
 func init() {
 	log.SetFlags(log.Flags() | log.Lshortfile)
+
+	log.Println(os.Getwd())
+	runtime_viper := viper.New()
+	runtime_viper.SetConfigFile("test.json")
+	runtime_viper.SetConfigType("json")
+	runtime_viper.ReadRemoteConfig()
+	runtime_viper.ReadInConfig()
+	cfg := sentrylib.Config{}
+	runtime_viper.Unmarshal(&cfg)
+
 	bolt, err := sentry_bolt.NewBoltStore("/tmp/test.db")
 	if err != nil {
 		log.Fatalln(err)
@@ -29,25 +40,6 @@ func init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	runtime_viper := viper.New()
-	//
-	//configTest, err := ioutil.ReadFile("test.json")
-	//if err != nil {
-	//	log.Fatalln("Unable to open test.json")
-	//}
-	//err = runtime_viper.ReadConfig(bytes.NewBuffer(configTest))
-	//log.Println(bytes.NewBuffer(configTest).String())
-	//
-	//if err != nil {
-	//	log.Fatalln("Unable to open test.json")
-	//}
-	runtime_viper.SetConfigFile("test.json")
-	runtime_viper.SetConfigType("json")
-	runtime_viper.ReadRemoteConfig()
-	runtime_viper.ReadInConfig()
-	cfg := sentrylib.Config{}
-	runtime_viper.Unmarshal(&cfg)
 
 	connString := fmt.Sprintf("user=%s password='%s' host=%s dbname=%s sslmode=%s",
 		cfg.PostgresConfig.User,
