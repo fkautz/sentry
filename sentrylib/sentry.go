@@ -43,7 +43,7 @@ func (server *sentry) Serve() error {
 	var err error
 	if server.config.BoltConfig != nil {
 		dbcount++
-		store, err = sentry_bolt.NewBoltStore("sentry.db")
+		store, err = sentry_bolt.NewBoltStore(server.config.BoltConfig.File)
 	}
 	if server.config.PostgresConfig != nil {
 		dbcount++
